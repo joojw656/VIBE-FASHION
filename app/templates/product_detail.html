@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} | VIBE-FASHION{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- 뒤로가기 브레드크럼 -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}" class="text-decoration-none text-muted">홈</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}#product-section" class="text-decoration-none text-muted">{{ product.category }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ product.name }}</li>
+        </ol>
+    </nav>
+
+    <div class="row g-5 align-items-center">
+        <!-- 상품 이미지 -->
+        <div class="col-lg-6">
+            <div class="position-relative shadow rounded-4 overflow-hidden">
+                <img src="{{ product.image_url }}" alt="{{ product.name }}" class="img-fluid w-100 object-fit-cover" style="max-height: 550px;">
+                <span class="position-absolute top-0 start-0 m-3 badge bg-dark text-warning fs-6 px-3 py-2">
+                    {{ product.badge }}
+                </span>
+            </div>
+        </div>
+
+        <!-- 상품 주문 및 설명 -->
+        <div class="col-lg-6">
+            <span class="text-warning fw-bold text-uppercase tracking-wider small">{{ product.category }}</span>
+            <h1 class="display-6 fw-bold mt-2 mb-3">{{ product.name }}</h1>
+            <p class="fs-3 fw-bold text-dark mb-4">{{ product.formatted_price }}</p>
+
+            <div class="border-top border-bottom py-3 mb-4">
+                <p class="text-secondary mb-0 leading-relaxed">
+                    {{ product.description }}
+                </p>
+            </div>
+
+            <!-- 사이즈 선택 더미 -->
+            <div class="mb-4">
+                <label class="form-label fw-bold small text-muted">사이즈 선택</label>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-outline-secondary btn-sm px-3 active">S</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm px-3">M</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm px-3">L</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm px-3">XL</button>
+                </div>
+            </div>
+
+            <!-- 수량 및 버튼 -->
+            <div class="d-flex gap-3">
+                <button type="button" class="btn btn-warning btn-lg flex-grow-1 fw-bold shadow-sm" onclick="addToCart('{{ product.name }}')">
+                    <i class="bi bi-bag-plus-fill me-2"></i>장바구니 담기
+                </button>
+                <a href="{{ url_for('main.index') }}" class="btn btn-outline-dark btn-lg px-4">
+                    목록으로
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

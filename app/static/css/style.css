@@ -1,0 +1,80 @@
+/* 
+ * VIBE-FASHION 커스텀 스타일시트
+ */
+
+/* 1. 히어로 섹션 스타일링 */
+.hero-section {
+    min-height: 520px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.hero-slide-1 {
+    background-image: linear-gradient(135deg, rgba(18, 18, 18, 0.88), rgba(35, 35, 35, 0.8)),
+                url('https://picsum.photos/seed/vibe-hero-bg/1600/900');
+}
+
+.hero-slide-2 {
+    background-image: linear-gradient(135deg, rgba(18, 18, 18, 0.88), rgba(35, 35, 35, 0.8)),
+                url('https://picsum.photos/seed/vibe-hero-monthly/1600/900');
+}
+
+.hero-slide-3 {
+    background-image: linear-gradient(135deg, rgba(18, 18, 18, 0.88), rgba(35, 35, 35, 0.8)),
+                url('https://picsum.photos/seed/vibe-hero-shipping/1600/900');
+}
+
+/* 2. 상품 카드 호버 애니메이션 */
+.product-card {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    border-radius: 12px;
+}
+
+.product-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* 상품 이미지 컨테이너 */
+.product-image-wrapper {
+    position: relative;
+    background-color: #f3f3f3;
+}
+
+.product-img {
+    height: 320px;
+    object-fit: cover;
+    transition: transform 0.35s ease;
+}
+
+.product-card:hover .product-img {
+    transform: scale(1.05);
+}
+
+/* 카드 호버 오버레이 버튼 */
+.product-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.25);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+.product-card:hover .product-overlay {
+    opacity: 1;
+}
+
+/* 3. 텍스트 줄바꿈 2줄 제한 */
+.text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* 4. 푸터 링크 호버 효과 */
+.hover-white:hover {
+    color: #fff !important;
+    text-decoration: underline !important;
+}
