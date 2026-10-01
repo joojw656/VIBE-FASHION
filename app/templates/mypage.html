@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% block title %}마이페이지 | VIBE-FASHION{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- 알림 메시지 (성공/오류) -->
+            {% include "auth/_alerts.html" %}
+
+            <!-- 회원 환영 및 로그아웃 헤더 -->
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom gap-3">
+                <div>
+                    <h2 class="h3 fw-bold mb-1">
+                        <i class="bi bi-person-fill-gear text-warning me-2"></i>마이페이지
+                    </h2>
+                    <p class="text-muted small mb-0">
+                        <strong class="text-dark">{{ profile.full_name or email }}</strong> 님, 오늘도 나만의 바이브를 찾아보세요!
+                        <span class="badge bg-dark ms-2">{{ profile.grade or 'BRONZE' }} 등급</span>
+                    </p>
+                </div>
+                <form method="post" action="{{ url_for('auth.logout') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-box-arrow-right me-1"></i>로그아웃
+                    </button>
+                </form>
+            </div>
+
+            <!-- Bootstrap 5 nav-tabs 3개 -->
+            <ul class="nav nav-tabs nav-fill mb-4" id="myPageTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active fw-bold py-3" id="info-tab" data-bs-toggle="tab" data-bs-target="#info-pane" type="button" role="tab" aria-controls="info-pane" aria-selected="true">
+                        <i class="bi bi-person-vcard me-2"></i>내 정보
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-bold py-3" id="orders-tab" data-bs-toggle="tab" data-bs-target="#orders-pane" type="button" role="tab" aria-controls="orders-pane" aria-selected="false">
+                        <i class="bi bi-bag-check me-2"></i>주문 내역
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-bold py-3" id="refunds-tab" data-bs-toggle="tab" data-bs-target="#refunds-pane" type="button" role="tab" aria-controls="refunds-pane" aria-selected="false">
+                        <i class="bi bi-arrow-counterclockwise me-2"></i>환불 내역
+                    </button>
+                </li>
+            </ul>
+
+            <!-- 탭 컨텐츠 영역 -->
+            <div class="tab-content" id="myPageTabContent">
+                <!-- 탭 1: 내 정보 (이름, 이메일, 기본 배송지 표시 + 수정 폼) -->
+                <div class="tab-pane fade show active" id="info-pane" role="tabpanel" aria-labelledby="info-tab" tabindex="0">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body p-4 p-md-5">
+                            <h4 class="h5 fw-bold mb-4 border-bottom pb-3">회원 기본 정보 및 배송지 설정</h4>
+                            <form method="post" action="{{ url_for('main.mypage') }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <label for="full_name" class="form-label fw-semibold small">이름</label>
+                                        <input type="text" class="form-control" id="full_name" name="full_name" value="{{ profile.full_name or '' }}" placeholder="이름을 입력해 주세요" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="email" class="form-label fw-semibold small">이메일 계정</label>
+                                        <input type="email" class="form-control bg-light" id="email" value="{{ profile.email or email }}" readonly>
+                                        <div class="form-text small">가입된 이메일 계정은 변경할 수 없습니다.</div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="phone" class="form-label fw-semibold small">연락처</label>
+                                    <input type="tel" class="form-control" id="phone" name="phone" value="{{ profile.phone or '' }}" placeholder="예: 010-1234-5678">
+                                </div>
+
+                                <div class="mb-4">
+                                    <label for="address" class="form-label fw-semibold small">기본 배송지</label>
+                                    <textarea class="form-control" id="address" name="address" rows="3" placeholder="기본으로 배송받을 주소를 입력해 주세요 (예: 서울특별시 강남구 테헤란로 123, 405호)">{{ default_address }}</textarea>
+                                    <div class="form-text small">주문 시 이 배송지가 기본 주소로 자동 입력됩니다.</div>
+                                </div>
+
+                                <div class="d-flex justify-content-end">
+                                    <button type="submit" class="btn btn-dark px-4 py-2">
+                                        <i class="bi bi-check2-circle me-1"></i>정보 수정하기
+                                    </button>
+                                </div>
+                            </form>
+
+                            <!-- 비밀번호 변경 섹션: 이메일/비밀번호 가입 회원에게만 표시 -->
+                            {% if can_change_password %}
+                            <div class="mt-5 pt-4 border-top">
+                                <h4 class="h5 fw-bold mb-3 text-dark">
+                                    <i class="bi bi-key-fill text-warning me-2"></i>비밀번호 변경
+                                </h4>
+                                <p class="text-muted small mb-4">현재 비밀번호를 확인한 후 새로운 비밀번호를 설정할 수 있습니다.</p>
+
+                                <form method="post" action="{{ url_for('main.change_password') }}">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                                    <div class="mb-3">
+                                        <label for="current_password" class="form-label fw-semibold small">현재 비밀번호</label>
+                                        <input type="password" class="form-control" id="current_password" name="current_password" required autocomplete="current-password" placeholder="현재 사용 중인 비밀번호를 입력해 주세요">
+                                    </div>
+
+                                    <div class="row g-3 mb-4">
+                                        <div class="col-md-6">
+                                            <label for="new_password" class="form-label fw-semibold small">새 비밀번호</label>
+                                            <input type="password" class="form-control" id="new_password" name="new_password" minlength="6" required autocomplete="new-password" placeholder="새 비밀번호 (6자 이상)">
+                                            <div class="form-text small">비밀번호는 최소 6자 이상이어야 합니다.</div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="new_password_confirm" class="form-label fw-semibold small">새 비밀번호 확인</label>
+                                            <input type="password" class="form-control" id="new_password_confirm" name="new_password_confirm" minlength="6" required autocomplete="new-password" placeholder="새 비밀번호를 한 번 더 입력해 주세요">
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex justify-content-end">
+                                        <button type="submit" class="btn btn-outline-dark px-4 py-2">
+                                            <i class="bi bi-shield-lock me-1"></i>비밀번호 변경하기
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 탭 2: 주문 내역 -->
+                <div class="tab-pane fade" id="orders-pane" role="tabpanel" aria-labelledby="orders-tab" tabindex="0">
+                    <div class="card border-0 shadow-sm text-center py-5">
+                        <div class="card-body py-5">
+                            <div class="mb-3 text-muted">
+                                <i class="bi bi-box2" style="font-size: 3.5rem;"></i>
+                            </div>
+                            <h5 class="fw-bold mb-2">아직 주문 내역이 없습니다</h5>
+                            <p class="text-muted small mb-4">VIBE-FASHION의 감각적인 아이템을 쇼핑해 보세요!</p>
+                            <a href="{{ url_for('main.index') }}" class="btn btn-outline-dark btn-sm px-4 py-2">
+                                상품 둘러보기
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 탭 3: 환불 내역 -->
+                <div class="tab-pane fade" id="refunds-pane" role="tabpanel" aria-labelledby="refunds-tab" tabindex="0">
+                    <div class="card border-0 shadow-sm text-center py-5">
+                        <div class="card-body py-5">
+                            <div class="mb-3 text-muted">
+                                <i class="bi bi-arrow-counterclockwise" style="font-size: 3.5rem;"></i>
+                            </div>
+                            <h5 class="fw-bold mb-2">아직 환불 내역이 없습니다</h5>
+                            <p class="text-muted small mb-0">진행 중이거나 완료된 취소/환불 내역이 없습니다.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

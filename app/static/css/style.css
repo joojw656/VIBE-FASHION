@@ -2,61 +2,481 @@
  * VIBE-FASHION 커스텀 스타일시트
  */
 
-/* 1. 히어로 섹션 스타일링 */
+:root {
+    --vibe-yellow: #ffc107;
+    --vibe-dark: #121214;
+    --vibe-radius: 18px;
+}
+
+body {
+    font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    letter-spacing: -0.01em;
+    color: #1d1d1f;
+}
+
+/* 0. 네비게이션 바 */
+.navbar-vibe {
+    background-color: rgba(18, 18, 20, 0.92) !important;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.navbar-vibe .navbar-brand {
+    letter-spacing: 0.02em;
+}
+
+.navbar-vibe .nav-link {
+    position: relative;
+    font-weight: 500;
+    margin: 0 0.35rem;
+    transition: color 0.2s ease;
+}
+
+.navbar-vibe .nav-link::after {
+    content: "";
+    position: absolute;
+    left: 0.5rem;
+    right: 0.5rem;
+    bottom: 0.2rem;
+    height: 2px;
+    background: var(--vibe-yellow);
+    transform: scaleX(0);
+    transition: transform 0.25s ease;
+}
+
+.navbar-vibe .nav-link:hover,
+.navbar-vibe .nav-link.active {
+    color: #fff;
+}
+
+.navbar-vibe .nav-link:hover::after,
+.navbar-vibe .nav-link.active::after {
+    transform: scaleX(1);
+}
+
+.btn-nav {
+    border-radius: 999px;
+    padding: 0.4rem 1rem;
+    border-color: rgba(255, 255, 255, 0.35);
+}
+
+/* 1. 히어로 섹션 (배경은 슬라이드별 .hero-slide-N) */
 .hero-section {
-    min-height: 520px;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+    color: #fff;
+    overflow: hidden;
 }
 
 .hero-slide-1 {
-    background-image: linear-gradient(135deg, rgba(18, 18, 18, 0.88), rgba(35, 35, 35, 0.8)),
-                url('https://picsum.photos/seed/vibe-hero-bg/1600/900');
+    background:
+        radial-gradient(circle at 78% 35%, rgba(255, 193, 7, 0.22), transparent 42%),
+        linear-gradient(135deg, #0f0f11 0%, #1d1d21 100%);
 }
 
 .hero-slide-2 {
-    background-image: linear-gradient(135deg, rgba(18, 18, 18, 0.88), rgba(35, 35, 35, 0.8)),
-                url('https://picsum.photos/seed/vibe-hero-monthly/1600/900');
+    background:
+        radial-gradient(circle at 70% 70%, rgba(255, 193, 7, 0.18), transparent 45%),
+        linear-gradient(135deg, #111114 0%, #23232a 100%);
 }
 
 .hero-slide-3 {
-    background-image: linear-gradient(135deg, rgba(18, 18, 18, 0.88), rgba(35, 35, 35, 0.8)),
-                url('https://picsum.photos/seed/vibe-hero-shipping/1600/900');
+    background:
+        radial-gradient(circle at 85% 20%, rgba(255, 193, 7, 0.2), transparent 40%),
+        linear-gradient(160deg, #0d0d0f 0%, #1a1a1e 100%);
 }
 
-/* 2. 상품 카드 호버 애니메이션 */
-.product-card {
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
+.hero-slide-4 {
+    background:
+        radial-gradient(circle at 75% 40%, rgba(244, 67, 54, 0.22), transparent 45%),
+        linear-gradient(145deg, #180d0e 0%, #1e1315 100%);
+}
+
+/* 히어로 5가지 상품 미니 쇼케이스 그리드 */
+.hero-product-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    max-width: 480px;
+    margin-left: auto;
+}
+
+.hero-product-card {
+    position: relative;
+    border-radius: var(--vibe-radius);
+    overflow: hidden;
+    background: #202025;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    display: block;
+    text-decoration: none;
+    color: inherit;
+}
+
+.hero-product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 30px rgba(255, 193, 7, 0.25);
+    border-color: var(--vibe-yellow);
+}
+
+.hero-product-card.card-featured {
+    grid-column: span 2;
+    grid-row: span 2;
+}
+
+.hero-product-card img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    display: block;
+}
+
+.hero-product-card.card-featured img {
+    aspect-ratio: 4 / 3.8;
+}
+
+.hero-card-meta {
+    padding: 0.6rem 0.75rem;
+    background: rgba(18, 18, 22, 0.95);
+}
+
+.hero-card-name {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.hero-card-price {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--vibe-yellow);
+}
+
+.hero-card-badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    padding: 2px 7px;
+    background: var(--vibe-yellow);
+    color: #111;
+    font-size: 0.68rem;
+    font-weight: 800;
+    border-radius: 4px;
+}
+
+/* 이벤트 카드 비주얼 */
+.hero-event-box {
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.12) 0%, rgba(255, 255, 255, 0.04) 100%);
+    border: 1px solid rgba(255, 193, 7, 0.35);
+    border-radius: 20px;
+    padding: 2.2rem;
+    max-width: 440px;
+    margin-left: auto;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+.hero-event-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 14px;
+    background: rgba(0, 0, 0, 0.35);
     border-radius: 12px;
+    margin-bottom: 12px;
+    border-left: 3px solid var(--vibe-yellow);
+}
+
+.hero-event-item:last-child {
+    margin-bottom: 0;
+}
+
+.hero-event-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 193, 7, 0.2);
+    color: var(--vibe-yellow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.hero-row {
+    min-height: 580px;
+}
+
+.hero-eyebrow {
+    display: inline-block;
+    padding-left: 0.75rem;
+    margin-bottom: 1.25rem;
+    border-left: 3px solid var(--vibe-yellow);
+    color: var(--vibe-yellow);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.25em;
+}
+
+.hero-title {
+    font-size: clamp(2.6rem, 5vw, 4.6rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.25rem;
+}
+
+.hero-lead {
+    max-width: 470px;
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 1.05rem;
+    line-height: 1.7;
+    margin-bottom: 2rem;
+}
+
+.btn-vibe {
+    border-radius: 999px;
+    padding: 0.85rem 1.8rem;
+    font-weight: 700;
+    box-shadow: 0 10px 24px rgba(255, 193, 7, 0.25);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-vibe:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 30px rgba(255, 193, 7, 0.35);
+}
+
+.btn-ghost {
+    border-radius: 999px;
+    padding: 0.85rem 1.8rem;
+    font-weight: 600;
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* 히어로 우측 상품 비주얼 (노란 테두리 프레임) */
+.hero-frame {
+    position: relative;
+    isolation: isolate;
+    width: 100%;
+    max-width: 360px;
+    aspect-ratio: 4 / 5;
+    margin-left: auto;
+}
+
+.hero-frame::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translate(18px, 18px);
+    border: 2px solid var(--vibe-yellow);
+    border-radius: var(--vibe-radius);
+    z-index: -1;
+}
+
+.hero-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: var(--vibe-radius);
+    background: #fff;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.45);
+}
+
+.hero-tag {
+    position: absolute;
+    left: 16px;
+    bottom: 16px;
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+    background: var(--vibe-dark);
+    color: var(--vibe-yellow);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+}
+
+.hero-duo {
+    position: relative;
+    height: 460px;
+    max-width: 460px;
+    margin-left: auto;
+}
+
+.hero-duo .hero-frame {
+    position: absolute;
+    max-width: none;
+}
+
+.hero-duo .hero-frame:first-child {
+    top: 0;
+    left: 0;
+    width: 58%;
+}
+
+.hero-duo .hero-frame:last-child {
+    right: 0;
+    bottom: 0;
+    width: 50%;
+}
+
+/* 캐러셀 인디케이터 */
+#heroCarousel .carousel-indicators [data-bs-target] {
+    width: 28px;
+    height: 3px;
+    border: 0;
+    background-color: rgba(255, 255, 255, 0.45);
+}
+
+#heroCarousel .carousel-indicators .active {
+    width: 44px;
+    background-color: var(--vibe-yellow);
+}
+
+/* 특장점 바 */
+.feature-icon {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255, 193, 7, 0.14);
+    color: #d39e00;
+    font-size: 1.3rem;
+}
+
+/* 브랜드 마퀴 띠 */
+.marquee {
+    overflow: hidden;
+    background: var(--vibe-dark);
+    color: rgba(255, 255, 255, 0.85);
+    padding: 0.9rem 0;
+    white-space: nowrap;
+}
+
+.marquee-track {
+    display: inline-flex;
+    gap: 3rem;
+    animation: marquee 28s linear infinite;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    font-size: 0.85rem;
+}
+
+.marquee-track span::after {
+    content: "✦";
+    margin-left: 3rem;
+    color: var(--vibe-yellow);
+}
+
+@keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .marquee-track { animation: none; }
+}
+
+/* 섹션 헤더 */
+.section-eyebrow {
+    display: inline-block;
+    color: #d39e00;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.25em;
+    margin-bottom: 0.5rem;
+}
+
+.section-title {
+    font-size: clamp(1.9rem, 3vw, 2.5rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.5rem;
+}
+
+/* 회원 CTA */
+.cta-panel {
+    border-radius: 24px;
+    padding: 3.5rem 2.5rem;
+    color: #fff;
+    background:
+        radial-gradient(circle at 90% 10%, rgba(255, 193, 7, 0.25), transparent 40%),
+        linear-gradient(135deg, #111114 0%, #26262c 100%);
+}
+
+/* 2. 상품 카드 */
+.product-card-link {
+    color: inherit;
+    text-decoration: none;
+}
+
+.product-card {
+    background: transparent;
+    transition: transform 0.25s ease;
 }
 
 .product-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12) !important;
+    transform: translateY(-4px);
 }
 
 /* 상품 이미지 컨테이너 */
 .product-image-wrapper {
     position: relative;
-    background-color: #f3f3f3;
+    border-radius: var(--vibe-radius);
+    background-color: #fff;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
 }
 
 .product-img {
-    height: 320px;
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    height: auto;
     object-fit: cover;
-    transition: transform 0.35s ease;
+    transition: transform 0.45s ease;
+}
+
+.product-rank {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    z-index: 1;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    background: var(--vibe-dark);
+    color: var(--vibe-yellow);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+}
+
+.product-overlay-label {
+    padding: 0.55rem 1.2rem;
+    border-radius: 999px;
+    background: #fff;
+    color: #111;
+    font-size: 0.85rem;
+    font-weight: 600;
 }
 
 .product-card:hover .product-img {
     transform: scale(1.05);
 }
 
-/* 카드 호버 오버레이 버튼 */
+/* 카드 호버 오버레이 */
 .product-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.25);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 1.25rem;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.35), transparent 55%);
     opacity: 0;
     transition: opacity 0.25s ease;
 }
@@ -65,15 +485,21 @@
     opacity: 1;
 }
 
-/* 3. 텍스트 줄바꿈 2줄 제한 */
-.text-truncate-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+/* 카카오 로그인 버튼 (카카오 브랜드 가이드 색상) */
+.btn-kakao {
+    background-color: #FEE500;
+    color: rgba(0, 0, 0, 0.85);
+    border: 0;
+    font-weight: 600;
 }
 
-/* 4. 푸터 링크 호버 효과 */
+.btn-kakao:hover,
+.btn-kakao:focus {
+    background-color: #F5DC00;
+    color: rgba(0, 0, 0, 0.85);
+}
+
+/* 3. 푸터 링크 호버 효과 */
 .hover-white:hover {
     color: #fff !important;
     text-decoration: underline !important;

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}로그인 | VIBE-FASHION{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4 p-md-5">
+                    <h2 class="h4 fw-bold text-center mb-4">로그인</h2>
+                    {% include "auth/_alerts.html" %}
+                    <form method="post" action="{{ url_for('auth.login') }}" novalidate>
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="next" value="{{ next }}">
+                        <div class="mb-3">
+                            <label for="email" class="form-label">이메일</label>
+                            <input type="email" class="form-control" id="email" name="email" required autocomplete="email">
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">비밀번호</label>
+                            <input type="password" class="form-control" id="password" name="password" required autocomplete="current-password">
+                        </div>
+                        <button type="submit" class="btn btn-dark w-100 py-2">로그인</button>
+                    </form>
+                    <div class="d-flex align-items-center my-3 text-muted small">
+                        <hr class="flex-grow-1"><span class="px-2">또는</span><hr class="flex-grow-1">
+                    </div>
+                    <a href="{{ url_for('auth.kakao_login', next=next) if next else url_for('auth.kakao_login') }}" class="btn btn-kakao w-100 py-2">
+                        <i class="bi bi-chat-fill me-2"></i>카카오로 시작하기
+                    </a>
+                    <div class="d-flex justify-content-between mt-3 small">
+                        <a href="{{ url_for('auth.forgot_password') }}" class="text-decoration-none">비밀번호 찾기</a>
+                        <a href="{{ url_for('auth.signup') }}" class="text-decoration-none">회원가입</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

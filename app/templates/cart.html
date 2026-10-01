@@ -1,0 +1,407 @@
+{% extends "base.html" %}
+{% block title %}장바구니 | VIBE-FASHION{% endblock %}
+
+{% block content %}
+<div class="container py-5" id="cartContainer">
+    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+        <h2 class="h3 fw-bold mb-0">
+            <i class="bi bi-bag-check-fill text-warning me-2"></i>장바구니
+            <span class="fs-6 text-muted fw-normal ms-2" id="cartHeaderCount">(총 {{ item_count }}개)</span>
+        </h2>
+        {% if items %}
+        <form method="post" action="{{ url_for('cart.clear_cart') }}" onsubmit="return confirm('장바구니를 모두 비우시겠습니까?');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-outline-danger btn-sm">
+                <i class="bi bi-trash3 me-1"></i>전체 비우기
+            </button>
+        </form>
+        {% endif %}
+    </div>
+
+    {% if items %}
+    <div class="row g-4" id="cartContentRow">
+        <!-- 장바구니 상품 목록 -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col" class="ps-4" style="width: 45%;">상품 정보</th>
+                                    <th scope="col" class="text-center" style="width: 20%;">수량</th>
+                                    <th scope="col" class="text-end" style="width: 20%;">금액</th>
+                                    <th scope="col" class="text-center pe-4" style="width: 15%;">삭제</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in items %}
+                                <tr id="cart-row-{{ item.cart_id or item.product_id }}">
+                                    <td class="ps-4 py-3">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <a href="{{ url_for('main.product_detail', product_id=item.product_id) }}" class="flex-shrink-0">
+                                                <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" 
+                                                     class="rounded object-fit-cover shadow-sm" style="width: 70px; height: 70px;">
+                                            </a>
+                                            <div>
+                                                <a href="{{ url_for('main.product_detail', product_id=item.product_id) }}" 
+                                                   class="text-decoration-none text-dark fw-bold d-block mb-1 hover-primary item-product-name">
+                                                    {{ item.product.name }}
+                                                </a>
+                                                {% if item.option_desc %}
+                                                <div class="badge bg-light text-dark border mb-1">
+                                                    옵션: {{ item.option_desc }}
+                                                </div>
+                                                {% endif %}
+                                                {% if item.is_sold_out %}
+                                                <div class="badge bg-danger text-white mb-1">
+                                                    <i class="bi bi-exclamation-circle-fill me-1"></i>품절됨
+                                                </div>
+                                                {% endif %}
+                                                <div class="text-muted small">단가: {{ item.formatted_unit_price }}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center py-3">
+                                        {% if item.cart_id %}
+                                        <div class="d-inline-flex align-items-center justify-content-center">
+                                            <div class="input-group input-group-sm" style="width: 110px;">
+                                                <button class="btn btn-outline-secondary" type="button" 
+                                                        onclick="patchQuantity('{{ item.cart_id }}', -1, this)"
+                                                        {% if item.quantity <= 1 or item.is_sold_out %}disabled{% endif %}>-</button>
+                                                <input type="text" class="form-control text-center bg-white item-qty-input" 
+                                                       id="qty-{{ item.cart_id }}" value="{{ item.quantity }}" readonly>
+                                                <button class="btn btn-outline-secondary" type="button" 
+                                                        onclick="patchQuantity('{{ item.cart_id }}', 1, this)"
+                                                        {% if item.is_sold_out %}disabled{% endif %}>+</button>
+                                            </div>
+                                        </div>
+                                        {% else %}
+                                        <form method="post" action="{{ url_for('cart.update_cart') }}" class="d-inline-flex align-items-center justify-content-center">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <input type="hidden" name="product_id" value="{{ item.product_id }}">
+                                            <div class="input-group input-group-sm" style="width: 110px;">
+                                                <button class="btn btn-outline-secondary" type="submit" name="quantity" value="{{ item.quantity - 1 }}" {% if item.quantity <= 1 %}disabled{% endif %}>-</button>
+                                                <input type="text" class="form-control text-center bg-white" value="{{ item.quantity }}" readonly>
+                                                <button class="btn btn-outline-secondary" type="submit" name="quantity" value="{{ item.quantity + 1 }}">+</button>
+                                            </div>
+                                        </form>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end py-3 fw-bold fs-6 item-subtotal" id="subtotal-{{ item.cart_id }}">
+                                        {{ item.formatted_subtotal }}
+                                    </td>
+                                    <td class="text-center pe-4 py-3">
+                                        {% if item.cart_id %}
+                                        <button type="button" class="btn btn-link text-secondary p-0" title="삭제"
+                                                onclick="openDeleteModal('{{ item.cart_id }}', {{ item.product.name|tojson }})">
+                                            <i class="bi bi-x-circle fs-5"></i>
+                                        </button>
+                                        {% else %}
+                                        <form method="post" action="{{ url_for('cart.remove_from_cart') }}">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <input type="hidden" name="product_id" value="{{ item.product_id }}">
+                                            <button type="submit" class="btn btn-link text-secondary p-0" title="삭제">
+                                                <i class="bi bi-x-circle fs-5"></i>
+                                            </button>
+                                        </form>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-3">
+                <a href="{{ url_for('main.index') }}" class="btn btn-outline-dark">
+                    <i class="bi bi-arrow-left me-1"></i>계속 쇼핑하기
+                </a>
+            </div>
+        </div>
+
+        <!-- 결제 금액 요약 카드 -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm sticky-top" style="top: 100px;">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4">주문 결제 금액</h5>
+                    
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">총 상품 금액</span>
+                        <span class="fw-semibold" id="cartTotalItems">{{ formatted_total_amount }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-muted">배송비</span>
+                        <span class="fw-semibold" id="cartShippingCost">
+                            {% if shipping_cost == 0 %}
+                            <span class="text-success">무료배송</span>
+                            {% else %}
+                            <span>{{ formatted_shipping_cost }}</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    {% if has_sold_out_item %}
+                    <div class="alert alert-warning border-0 mb-3 py-2" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                        <small>품절된 상품이 있어서 주문할 수 없습니다. 삭제 후 진행해주세요.</small>
+                    </div>
+                    {% endif %}
+                    
+                    <hr class="my-3">
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <span class="fw-bold fs-5">총 결제 예정 금액</span>
+                        <span class="text-danger fw-bold fs-4" id="cartTotalPay">{{ formatted_final_total }}</span>
+                    </div>
+                    
+                    <a href="{{ url_for('order.checkout') if not has_sold_out_item else '#' }}" 
+                       class="btn btn-warning btn-lg w-100 fw-bold shadow-sm py-3 text-decoration-none"
+                       id="checkoutBtn"
+                       {% if has_sold_out_item %}disabled{% endif %}
+                       {% if not has_sold_out_item %}style="cursor: pointer;"{% endif %}>
+                        <i class="bi bi-credit-card me-1"></i>주문하기 (총 {{ item_count }}개)
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <!-- 빈 장바구니 안내 -->
+    <div class="text-center py-5 my-5">
+        <div class="mb-4">
+            <i class="bi bi-bag-x text-muted" style="font-size: 5rem;"></i>
+        </div>
+        <h4 class="fw-bold mb-2">장바구니가 비어 있습니다</h4>
+        <p class="text-muted mb-4">원하는 패션 상품을 장바구니에 담아보세요!</p>
+        <a href="{{ url_for('main.index') }}" class="btn btn-dark btn-lg px-4 py-2">
+            쇼핑하러 가기
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- 삭제 확인 Bootstrap 모달 -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-bottom-0 pb-0">
+                <h5 class="modal-title fw-bold" id="deleteConfirmModalLabel">
+                    <i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>상품 삭제
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body py-4">
+                <p class="mb-1 text-dark fs-6" id="deleteModalMessage">
+                    이 상품을 장바구니에서 삭제하시겠습니까?
+                </p>
+                <div class="small text-muted" id="deleteModalItemName"></div>
+            </div>
+            <div class="modal-footer border-top-0 pt-0">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">취소</button>
+                <button type="button" class="btn btn-danger px-4" id="confirmDeleteBtn" onclick="executeDeleteItem()">삭제하기</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// 모달 및 삭제 대상 관리 변수
+let targetDeleteCartId = null;
+let deleteModalInstance = null;
+
+// 삭제 모달 열기
+function openDeleteModal(cartId, productName) {
+    targetDeleteCartId = cartId;
+    const nameElem = document.getElementById('deleteModalItemName');
+    if (nameElem && productName) {
+        nameElem.textContent = `선택 상품: ${productName}`;
+    }
+
+    const modalElem = document.getElementById('deleteConfirmModal');
+    if (!deleteModalInstance) {
+        deleteModalInstance = new bootstrap.Modal(modalElem);
+    }
+    deleteModalInstance.show();
+}
+
+// DELETE /cart/<cart_id> 비동기 삭제 실행
+async function executeDeleteItem() {
+    if (!targetDeleteCartId) return;
+
+    const confirmBtn = document.getElementById('confirmDeleteBtn');
+    confirmBtn.disabled = true;
+
+    try {
+        const response = await fetch(`/cart/${targetDeleteCartId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                csrf_token: '{{ csrf_token() }}'
+            })
+        });
+
+        const data = await response.json();
+
+        if (!data.success) {
+            alert(data.message || '삭제에 실패했습니다.');
+            return;
+        }
+
+        // 모달 닫기
+        if (deleteModalInstance) {
+            deleteModalInstance.hide();
+        }
+
+        // 1. 해당 아이템 행(tr) 애니메이션과 함께 제거
+        const rowElem = document.getElementById(`cart-row-${targetDeleteCartId}`);
+        if (rowElem) {
+            rowElem.classList.add('table-danger');
+            setTimeout(() => {
+                rowElem.remove();
+
+                // 2. 장바구니가 비었는지 확인
+                if (data.remaining_count === 0 || document.querySelectorAll('#cartContentRow tbody tr').length === 0) {
+                    showEmptyCartView();
+                }
+            }, 250);
+        }
+
+        // 3. 우측 결제 요약 총액 갱신
+        const totalItemsElem = document.getElementById('cartTotalItems');
+        const totalPayElem = document.getElementById('cartTotalPay');
+        if (totalItemsElem && data.formatted_total_amount) {
+            totalItemsElem.textContent = data.formatted_total_amount;
+        }
+        if (totalPayElem && data.formatted_total_amount) {
+            totalPayElem.textContent = data.formatted_total_amount;
+        }
+
+        // 4. 헤더 및 배지 수량 갱신
+        const headerCountElem = document.getElementById('cartHeaderCount');
+        if (headerCountElem) {
+            headerCountElem.textContent = `(총 ${data.total_quantity || 0}개)`;
+        }
+        const badgeElem = document.getElementById('cart-badge');
+        if (badgeElem && data.cart_count !== undefined) {
+            badgeElem.textContent = data.cart_count;
+        }
+    } catch (err) {
+        console.error('삭제 처리 네트워크 오류:', err);
+        alert('서버와 통신 중 오류가 발생했습니다.');
+    } finally {
+        confirmBtn.disabled = false;
+        targetDeleteCartId = null;
+    }
+}
+
+// 빈 장바구니 화면으로 동적 전환
+function showEmptyCartView() {
+    const cartContainer = document.getElementById('cartContainer');
+    if (!cartContainer) return;
+
+    cartContainer.innerHTML = `
+        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+            <h2 class="h3 fw-bold mb-0">
+                <i class="bi bi-bag-check-fill text-warning me-2"></i>장바구니
+                <span class="fs-6 text-muted fw-normal ms-2">(총 0개)</span>
+            </h2>
+        </div>
+        <div class="text-center py-5 my-5">
+            <div class="mb-4">
+                <i class="bi bi-bag-x text-muted" style="font-size: 5rem;"></i>
+            </div>
+            <h4 class="fw-bold mb-2">장바구니가 비어 있습니다</h4>
+            <p class="text-muted mb-4">원하는 패션 상품을 장바구니에 담아보세요!</p>
+            <a href="{{ url_for('main.index') }}" class="btn btn-dark btn-lg px-4 py-2">
+                쇼핑하러 가기
+            </a>
+        </div>
+    `;
+
+    const badgeElem = document.getElementById('cart-badge');
+    if (badgeElem) {
+        badgeElem.textContent = '0';
+    }
+}
+
+// PATCH /cart/<cart_id> 비동기 수량 조절
+async function patchQuantity(cartId, delta, buttonElem) {
+    const inputElem = document.getElementById(`qty-${cartId}`);
+    if (!inputElem) return;
+
+    let currentQty = parseInt(inputElem.value) || 1;
+    let targetQty = currentQty + delta;
+
+    if (targetQty < 1) {
+        alert('수량은 1개 이상이어야 합니다.');
+        return;
+    }
+
+    buttonElem.disabled = true;
+
+    try {
+        const response = await fetch(`/cart/${cartId}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                quantity: targetQty,
+                csrf_token: '{{ csrf_token() }}'
+            })
+        });
+
+        const data = await response.json();
+
+        if (!data.success) {
+            alert(data.message || '수량 변경에 실패했습니다.');
+            return;
+        }
+
+        // 1. input 수량 반영
+        inputElem.value = data.quantity;
+
+        // 2. 소계(subtotal) 실시간 갱신
+        const subtotalElem = document.getElementById(`subtotal-${cartId}`);
+        if (subtotalElem && data.formatted_subtotal) {
+            subtotalElem.textContent = data.formatted_subtotal;
+        }
+
+        // 3. 우측 결제 요약 총액 갱신
+        const totalItemsElem = document.getElementById('cartTotalItems');
+        const totalPayElem = document.getElementById('cartTotalPay');
+        if (totalItemsElem && data.formatted_total_amount) {
+            totalItemsElem.textContent = data.formatted_total_amount;
+        }
+        if (totalPayElem && data.formatted_total_amount) {
+            totalPayElem.textContent = data.formatted_total_amount;
+        }
+
+        // 4. 네비게이션 바 배지 카운트 갱신
+        const badgeElem = document.getElementById('cart-badge');
+        if (badgeElem && data.cart_count !== undefined) {
+            badgeElem.textContent = data.cart_count;
+        }
+
+        // 5. 마이너스 버튼 disabled 상태 조절
+        const minusBtn = inputElem.parentElement.querySelector('button:first-child');
+        if (minusBtn) {
+            minusBtn.disabled = (data.quantity <= 1);
+        }
+    } catch (err) {
+        console.error('수량 변경 네트워크 오류:', err);
+        alert('서버와 통신하는 중 오류가 발생했습니다.');
+    } finally {
+        buttonElem.disabled = false;
+    }
+}
+</script>
+{% endblock %}

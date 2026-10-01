@@ -1,5 +1,6 @@
 # Python 가상환경 및 캐시 파일
 venv/
+venv*/
 .venv/
 env/
 __pycache__/
@@ -23,5 +24,6 @@ build/
 # OS 관련 임시 파일
 .DS_Store
 Thumbs.db
+*.jpe
 
 *.log

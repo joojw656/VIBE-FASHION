@@ -87,14 +87,27 @@ create index if not exists idx_products_featured on public.products(is_active, i
 create table if not exists public.product_options (
     id uuid primary key default gen_random_uuid(),
     product_id uuid not null references public.products(id) on delete cascade,
-    option_name text not null,
-    option_value text not null,
+    option_name text,
+    option_value text,
     additional_price bigint not null default 0,
     stock_quantity integer not null default 0 check (stock_quantity >= 0),
-    created_at timestamptz not null default now()
+    color text,
+    size text,
+    stock integer default 0 check (stock is null or stock >= 0),
+    created_at timestamptz not null default now(),
+    constraint chk_valid_option_row check (
+        (option_name is not null and option_value is not null)
+        or
+        (color is not null and size is not null)
+    )
 );
 
 create index if not exists idx_product_options_product_id on public.product_options(product_id);
+
+drop index if exists public.uq_product_options_color_size;
+create unique index if not exists uq_product_options_color_size
+    on public.product_options (product_id, color, size)
+    where color is not null and size is not null;
 
 -- ---------------------------------------------------------------------
 -- 6. product_images : 상품 이미지 (다중 이미지)
